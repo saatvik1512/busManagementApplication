@@ -2,7 +2,6 @@ package com.example.busManagement.busManagement.services;
 
 import com.example.busManagement.busManagement.entities.Admin;
 import com.example.busManagement.busManagement.respository.AdminRepository;
-//import com.example.busManagement.busManagement.respository.BusRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,28 +29,4 @@ public class AdminService {
                 .filter(admin -> passwordEncoder.matches(password, admin.getPassword()))
                 .orElse(null);
     }
-
-//    public Admin updateAdminProfile(String username, Admin updatedAdmin) {
-//        Admin existingAdmin = adminRepository.findByUsername(username)
-//                .orElseThrow(() -> new RuntimeException("Admin not found"));
-//
-//        // Update fields if provided
-//        if (updatedAdmin.getUsername() != null) {
-//            existingAdmin.setUsername(updatedAdmin.getUsername());
-//        }
-//        if (updatedAdmin.getPassword() != null) {
-//            existingAdmin.setPassword(passwordEncoder.encode(updatedAdmin.getPassword()));
-//        }
-//        if (updatedAdmin.getCompanyName() != null) {
-//            existingAdmin.setCompanyName(updatedAdmin.getCompanyName());
-//        }
-//        if (updatedAdmin.getLicenseNumber() != null) {
-//            existingAdmin.setLicenseNumber(updatedAdmin.getLicenseNumber());
-//        }
-//        if (updatedAdmin.getCity() != null) {
-//            existingAdmin.setCity(updatedAdmin.getCity());
-//        }
-//
-//        return adminRepository.save(existingAdmin);
-//    }
 }

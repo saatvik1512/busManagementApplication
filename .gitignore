@@ -23,6 +23,7 @@ backEnd/build/
 backEnd/!**/src/main/**/build/
 backEnd/!**/src/test/**/build/
 backEnd/.vscode/
+backEnd/src/main/resources/application.properties
 
 
 

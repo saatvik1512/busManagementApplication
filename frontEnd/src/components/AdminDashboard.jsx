@@ -1,6 +1,7 @@
 // src/components/AdminDashboard.jsx
 import React, { useState, useEffect } from 'react';
 import * as api from '../services/api';
+import Card from './Card';
 
 const AdminDashboard = () => {
   const [buses, setBuses] = useState([]);
@@ -78,63 +79,166 @@ const AdminDashboard = () => {
   if (error) return <p style={{ color: 'red' }}>{error}</p>;
 
   return (
-    <div>
-      <h2>Admin Dashboard</h2>
-      <button onClick={() => setShowAddForm(!showAddForm)}>
-        {showAddForm ? 'Cancel' : 'Add New Bus'}
-      </button>
+    <div className="container">
+      <Card title="Admin Dashboard">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h3>Your Buses</h3>
+          <button 
+            className={`btn ${showAddForm ? 'btn-danger' : 'btn-secondary'}`} 
+            onClick={() => setShowAddForm(!showAddForm)}
+          >
+            {showAddForm ? 'Cancel' : 'Add New Bus'}
+          </button>
+        </div>
+      </Card>
 
       {showAddForm && (
-        <form onSubmit={handleAddBus} style={{ border: '1px solid #ddd', padding: '15px', margin: '10px 0' }}>
-          <h3>Add New Bus</h3>
-          <div>
-            <label>Bus Number: <input type="text" value={newBus.busNumber} onChange={(e) => setNewBus({ ...newBus, busNumber: e.target.value })} required /></label>
-          </div>
-          <div>
-            <label>Bus Name: <input type="text" value={newBus.busName} onChange={(e) => setNewBus({ ...newBus, busName: e.target.value })} required /></label>
-          </div>
-          <div>
-            <label>City: <input type="text" value={newBus.city} onChange={(e) => setNewBus({ ...newBus, city: e.target.value })} required /></label>
-          </div>
-          <h4>Stops:</h4>
-          {newBus.stops.map((stop, index) => (
-            <div key={index} style={{ marginBottom: '10px', border: '1px solid #eee', padding: '5px' }}>
-              <label>Stop Name: <input type="text" value={stop.stopName} onChange={(e) => handleStopChange(index, 'stopName', e.target.value)} required /></label>
-              <label>Arrival Time: <input type="text" value={stop.arrivalTime} onChange={(e) => handleStopChange(index, 'arrivalTime', e.target.value)} required /></label>
-              <label>Departure Time: <input type="text" value={stop.departureTime} onChange={(e) => handleStopChange(index, 'departureTime', e.target.value)} /></label>
-              {newBus.stops.length > 1 && (
-                <button type="button" onClick={() => removeStopField(index)}>Remove Stop</button>
-              )}
+        <Card title="Add New Bus">
+          <form onSubmit={handleAddBus}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+              <div className="form-group">
+                <label>Bus Number</label>
+                <input 
+                  type="text" 
+                  value={newBus.busNumber} 
+                  onChange={(e) => setNewBus({ ...newBus, busNumber: e.target.value })} 
+                  required 
+                />
+              </div>
+              <div className="form-group">
+                <label>Bus Name</label>
+                <input 
+                  type="text" 
+                  value={newBus.busName} 
+                  onChange={(e) => setNewBus({ ...newBus, busName: e.target.value })} 
+                  required 
+                />
+              </div>
+              <div className="form-group">
+                <label>City</label>
+                <input 
+                  type="text" 
+                  value={newBus.city} 
+                  onChange={(e) => setNewBus({ ...newBus, city: e.target.value })} 
+                  required 
+                />
+              </div>
             </div>
-          ))}
-          <button type="button" onClick={addStopField}>Add Stop</button>
-          <br />
-          <button type="submit">Save Bus</button>
-        </form>
+            
+            <h4 style={{ margin: '1.5rem 0 1rem' }}>Stops:</h4>
+            {newBus.stops.map((stop, index) => (
+              <div key={index} className="form-group" style={{ 
+                border: '1px solid #eee', 
+                padding: '1rem',
+                borderRadius: '6px',
+                marginBottom: '1rem'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                  <h5>Stop #{index + 1}</h5>
+                  {newBus.stops.length > 1 && (
+                    <button 
+                      type="button" 
+                      className="btn btn-danger"
+                      style={{ padding: '0.25rem 0.5rem' }}
+                      onClick={() => removeStopField(index)}
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+                  <div className="form-group">
+                    <label>Stop Name</label>
+                    <input 
+                      type="text" 
+                      value={stop.stopName} 
+                      onChange={(e) => handleStopChange(index, 'stopName', e.target.value)} 
+                      required 
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Arrival Time</label>
+                    <input 
+                      type="text" 
+                      value={stop.arrivalTime} 
+                      onChange={(e) => handleStopChange(index, 'arrivalTime', e.target.value)} 
+                      required 
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Departure Time</label>
+                    <input 
+                      type="text" 
+                      value={stop.departureTime} 
+                      onChange={(e) => handleStopChange(index, 'departureTime', e.target.value)} 
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+            
+            <button 
+              type="button" 
+              className="btn"
+              style={{ marginBottom: '1rem' }}
+              onClick={addStopField}
+            >
+              Add Stop
+            </button>
+            
+            <button type="submit" className="btn" style={{ width: '100%' }}>
+              Save Bus
+            </button>
+          </form>
+        </Card>
       )}
 
-      <h3>Your Buses</h3>
-      {buses.length === 0 ? (
-        <p>You have not added any buses yet.</p>
-      ) : (
-        <ul>
-          {buses.map((bus) => (
-            <li key={bus.id} style={{ border: '1px solid #ccc', margin: '10px', padding: '10px' }}>
-              <strong>{bus.busName}</strong> ({bus.busNumber}) - {bus.city}
-              <br />
-              <strong>Stops:</strong>
-              <ul>
-                {bus.stops.map((stop, index) => (
-                  <li key={index}>
-                    {stop.stopName} (Arrival: {stop.arrivalTime}
-                    {stop.departureTime && `, Departure: ${stop.departureTime}`})
-                  </li>
-                ))}
-              </ul>
-              <button onClick={() => handleDeleteBus(bus.id)} style={{ backgroundColor: 'red', color: 'white' }}>Delete</button>
-            </li>
-          ))}
-        </ul>
+      {loading && <div className="loading">Loading buses...</div>}
+      {error && <div className="alert alert-danger">{error}</div>}
+      
+      {!loading && buses.length === 0 && !showAddForm && (
+        <Card>
+          <p style={{ textAlign: 'center', padding: '2rem' }}>
+            You have not added any buses yet.
+          </p>
+        </Card>
+      )}
+
+      {!loading && buses.length > 0 && (
+        <Card title={`Your Buses (${buses.length})`}>
+          <div className="bus-list">
+            {buses.map((bus) => (
+              <div key={bus.id} className="list-item">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <h4>{bus.busName} ({bus.busNumber})</h4>
+                    <p style={{ color: '#7f8c8d', margin: '0.25rem 0' }}>
+                      {bus.city}
+                    </p>
+                  </div>
+                  <button 
+                    onClick={() => handleDeleteBus(bus.id)} 
+                    className="btn btn-danger"
+                  >
+                    Delete
+                  </button>
+                </div>
+                
+                <h5 style={{ margin: '1rem 0 0.5rem' }}>Stops:</h5>
+                <ul style={{ paddingLeft: '1.5rem' }}>
+                  {bus.stops.map((stop, index) => (
+                    <li key={index} style={{ marginBottom: '0.5rem' }}>
+                      <strong>{stop.stopName}</strong> - 
+                      Arrival: {stop.arrivalTime}
+                      {stop.departureTime && `, Departure: ${stop.departureTime}`}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </Card>
       )}
     </div>
   );

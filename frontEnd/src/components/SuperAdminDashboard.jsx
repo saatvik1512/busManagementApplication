@@ -1,6 +1,7 @@
 // src/components/SuperAdminDashboard.jsx
 import React, { useState, useEffect } from 'react';
 import * as api from '../services/api';
+import Card from './Card';
 
 const SuperAdminDashboard = () => {
   const [admins, setAdmins] = useState([]);
@@ -61,106 +62,172 @@ const SuperAdminDashboard = () => {
   };
 
   return (
-    <div>
-      <h2>Super Admin Dashboard</h2>
-      <div>
-        <button
-          onClick={() => setActiveTab('admins')}
-          style={{ fontWeight: activeTab === 'admins' ? 'bold' : 'normal' }}
-        >
-          Manage Admins
-        </button>
-        <button
-          onClick={() => setActiveTab('buses')}
-          style={{ fontWeight: activeTab === 'buses' ? 'bold' : 'normal', marginLeft: '10px' }}
-        >
-          View All Buses (City)
-        </button>
-      </div>
+    <div className="container">
+      <Card title="Super Admin Dashboard">
+        <div className="tabs">
+          <button 
+            className={`tab-btn ${activeTab === 'admins' ? 'active' : ''}`}
+            onClick={() => setActiveTab('admins')}
+          >
+            Manage Admins
+          </button>
+          <button 
+            className={`tab-btn ${activeTab === 'buses' ? 'active' : ''}`}
+            onClick={() => setActiveTab('buses')}
+          >
+            View All Buses
+          </button>
+        </div>
+      </Card>
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <div className="alert alert-danger">{error}</div>}
 
       {activeTab === 'admins' && (
-        <div>
-          <h3>Admins in Your City</h3>
-          <button onClick={() => setShowAddAdminForm(!showAddAdminForm)}>
-            {showAddAdminForm ? 'Cancel' : 'Create New Admin'}
-          </button>
+        <>
+          <Card>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3>Admins in Your City</h3>
+              <button 
+                className={`btn ${showAddAdminForm ? 'btn-danger' : 'btn-secondary'}`} 
+                onClick={() => setShowAddAdminForm(!showAddAdminForm)}
+              >
+                {showAddAdminForm ? 'Cancel' : 'Create New Admin'}
+              </button>
+            </div>
+          </Card>
 
           {showAddAdminForm && (
-            <form onSubmit={handleAddAdmin} style={{ border: '1px solid #ddd', padding: '15px', margin: '10px 0' }}>
-              <h4>Create New Admin</h4>
-              <div>
-                <label>Username: <input type="text" value={newAdmin.username} onChange={(e) => setNewAdmin({ ...newAdmin, username: e.target.value })} required /></label>
-              </div>
-              <div>
-                <label>Password: <input type="password" value={newAdmin.password} onChange={(e) => setNewAdmin({ ...newAdmin, password: e.target.value })} required /></label>
-              </div>
-              <div>
-                <label>Company Name: <input type="text" value={newAdmin.companyName} onChange={(e) => setNewAdmin({ ...newAdmin, companyName: e.target.value })} required /></label>
-              </div>
-              <div>
-                <label>License Number: <input type="text" value={newAdmin.licenseNumber} onChange={(e) => setNewAdmin({ ...newAdmin, licenseNumber: e.target.value })} required /></label>
-              </div>
-               {/* City is typically set by the SuperAdmin's city on the backend, but showing it might be okay */}
-              {/* <div>
-                <label>City: <input type="text" value={newAdmin.city} onChange={(e) => setNewAdmin({ ...newAdmin, city: e.target.value })} required /></label>
-              </div> */}
-              <button type="submit">Create Admin</button>
-            </form>
+            <Card title="Create New Admin">
+              <form onSubmit={handleAddAdmin}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div className="form-group">
+                    <label>Username</label>
+                    <input 
+                      type="text" 
+                      value={newAdmin.username} 
+                      onChange={(e) => setNewAdmin({ ...newAdmin, username: e.target.value })} 
+                      required 
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Password</label>
+                    <input 
+                      type="password" 
+                      value={newAdmin.password} 
+                      onChange={(e) => setNewAdmin({ ...newAdmin, password: e.target.value })} 
+                      required 
+                    />
+                  </div>
+                </div>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
+                  <div className="form-group">
+                    <label>Company Name</label>
+                    <input 
+                      type="text" 
+                      value={newAdmin.companyName} 
+                      onChange={(e) => setNewAdmin({ ...newAdmin, companyName: e.target.value })} 
+                      required 
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>License Number</label>
+                    <input 
+                      type="text" 
+                      value={newAdmin.licenseNumber} 
+                      onChange={(e) => setNewAdmin({ ...newAdmin, licenseNumber: e.target.value })} 
+                      required 
+                    />
+                  </div>
+                </div>
+                
+                <button type="submit" className="btn" style={{ marginTop: '1rem', width: '100%' }}>
+                  Create Admin
+                </button>
+              </form>
+            </Card>
           )}
 
           {loadingAdmins ? (
-            <p>Loading admins...</p>
+            <div className="loading">Loading admins...</div>
           ) : admins.length === 0 ? (
-            <p>No admins found in your city.</p>
+            <Card>
+              <p style={{ textAlign: 'center', padding: '2rem' }}>
+                No admins found in your city.
+              </p>
+            </Card>
           ) : (
-            <ul>
-              {admins.map((admin) => (
-                <li key={admin.id} style={{ border: '1px solid #ccc', margin: '10px', padding: '10px' }}>
-                  <strong>{admin.username}</strong> - {admin.companyName} (License: {admin.licenseNumber})
-                  <br />
-                  City: {admin.city}
-                  <br />
-                  {/* Add edit functionality if needed */}
-                  <button onClick={() => handleDeleteAdmin(admin.id)} style={{ backgroundColor: 'red', color: 'white', marginTop: '5px' }}>Delete Admin</button>
-                </li>
-              ))}
-            </ul>
+            <Card title={`Admins (${admins.length})`}>
+              <div className="admin-list">
+                {admins.map((admin) => (
+                  <div key={admin.id} className="list-item">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <h4>{admin.username}</h4>
+                        <p style={{ color: '#7f8c8d', margin: '0.25rem 0' }}>
+                          {admin.companyName} (License: {admin.licenseNumber})
+                        </p>
+                        <p>City: {admin.city}</p>
+                      </div>
+                      <button 
+                        onClick={() => handleDeleteAdmin(admin.id)} 
+                        className="btn btn-danger"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
           )}
-        </div>
+        </>
       )}
 
       {activeTab === 'buses' && (
-        <div>
-          <h3>All Buses in Your City</h3>
+        <>
+          <Card>
+            <h3>All Buses in Your City</h3>
+          </Card>
+          
           {loadingBuses ? (
-            <p>Loading buses...</p>
+            <div className="loading">Loading buses...</div>
           ) : buses.length === 0 ? (
-            <p>No buses found in your city.</p>
+            <Card>
+              <p style={{ textAlign: 'center', padding: '2rem' }}>
+                No buses found in your city.
+              </p>
+            </Card>
           ) : (
-            <ul>
-              {buses.map((bus) => (
-                <li key={bus.id} style={{ border: '1px solid #ccc', margin: '10px', padding: '10px' }}>
-                  <strong>{bus.busName}</strong> ({bus.busNumber}) - {bus.city}
-                  <br />
-                  Managed by: {bus.companyName} {/* Assuming companyName is in BusDTO */}
-                  <br />
-                  <strong>Stops:</strong>
-                  <ul>
-                    {bus.stops.map((stop, index) => (
-                      <li key={index}>
-                        {stop.stopName} (Arrival: {stop.arrivalTime}
-                        {stop.departureTime && `, Departure: ${stop.departureTime}`})
-                      </li>
-                    ))}
-                  </ul>
-                  {/* Add actions like view details if needed, but probably no edit/delete here */}
-                </li>
-              ))}
-            </ul>
+            <Card title={`Buses (${buses.length})`}>
+              <div className="bus-list">
+                {buses.map((bus) => (
+                  <div key={bus.id} className="list-item">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <h4>{bus.busName} ({bus.busNumber})</h4>
+                        <p style={{ color: '#7f8c8d', margin: '0.25rem 0' }}>
+                          {bus.city} • Company: {bus.companyName}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <h5 style={{ margin: '1rem 0 0.5rem' }}>Stops:</h5>
+                    <ul style={{ paddingLeft: '1.5rem' }}>
+                      {bus.stops.map((stop, index) => (
+                        <li key={index} style={{ marginBottom: '0.5rem' }}>
+                          <strong>{stop.stopName}</strong> - 
+                          Arrival: {stop.arrivalTime}
+                          {stop.departureTime && `, Departure: ${stop.departureTime}`}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </Card>
           )}
-        </div>
+        </>
       )}
     </div>
   );

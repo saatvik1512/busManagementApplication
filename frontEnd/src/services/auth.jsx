@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import * as api from './api'; // Import API functions
 
 const AuthContext = createContext();
-
+document.documentElement.setAttribute('data-theme', 'light');
 export const useAuth = () => {
   return useContext(AuthContext);
 };

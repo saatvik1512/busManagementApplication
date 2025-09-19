@@ -1,4 +1,4 @@
-// src/components/AdminDashboard.jsx
+// frontEnd/src/components/AdminDashboard.jsx
 import React, { useState, useEffect } from 'react';
 import * as api from '../services/api';
 import Card from './Card';
@@ -8,8 +8,13 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editingBusId, setEditingBusId] = useState(null);
   const [newBus, setNewBus] = useState({
-    busNumber: '', busName: '', city: '', stops: [{ stopName: '', arrivalTime: '', departureTime: '' }]
+
+    busNumber: '', 
+    busName: '', 
+    city: '', 
+    stops: [{ stopName: '', arrivalTime: '', departureTime: '' }]
   });
 
   useEffect(() => {
@@ -24,21 +29,36 @@ const AdminDashboard = () => {
         setLoading(false);
       }
     };
-
     fetchBuses();
   }, []);
 
   const handleAddBus = async (e) => {
     e.preventDefault();
     try {
-      const response = await api.addBus(newBus);
-      setBuses([...buses, response.data]);
-      setNewBus({ busNumber: '', busName: '', city: '', stops: [{ stopName: '', arrivalTime: '', departureTime: '' }] });
+      if (editingBusId) {
+        // Update existing bus
+        const response = await api.updateBus(editingBusId, newBus);
+        setBuses(buses.map(bus => 
+          bus.id === editingBusId ? response.data : bus
+        ));
+        setEditingBusId(null);
+      } else {
+        // Add new bus
+        const response = await api.addBus(newBus);
+        setBuses([...buses, response.data]);
+      }
+      
+      setNewBus({ 
+        busNumber: '', 
+        busName: '', 
+        city: '', 
+        stops: [{ stopName: '', arrivalTime: '', departureTime: '', latitude: null, longitude: null }] 
+      });
       setShowAddForm(false);
-      alert('Bus added successfully!');
+      alert(`Bus ${editingBusId ? 'updated' : 'added'} successfully!`);
     } catch (err) {
-      console.error("Error adding bus:", err);
-      alert('Failed to add bus: ' + (err.response?.data?.message || err.message));
+      console.error(`Error ${editingBusId ? 'updating' : 'adding'} bus:`, err);
+      alert(`Failed to ${editingBusId ? 'update' : 'add'} bus: ${err.response?.data?.message || err.message}`);
     }
   };
 
@@ -55,10 +75,27 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleEditBus = (bus) => {
+    setNewBus({
+      busNumber: bus.busNumber,
+      busName: bus.busName,
+      city: bus.city,
+      stops: bus.stops.map(stop => ({...stop}))
+    });
+    setEditingBusId(bus.id);
+    setShowAddForm(true);
+  };
+
   const addStopField = () => {
     setNewBus({
       ...newBus,
-      stops: [...newBus.stops, { stopName: '', arrivalTime: '', departureTime: '' }]
+      stops: [...newBus.stops, { 
+        stopName: '', 
+        arrivalTime: '', 
+        departureTime: '', 
+        latitude: null, 
+        longitude: null 
+      }]
     });
   };
 
@@ -85,15 +122,26 @@ const AdminDashboard = () => {
           <h3>Your Buses</h3>
           <button 
             className={`btn ${showAddForm ? 'btn-danger' : 'btn-secondary'}`} 
-            onClick={() => setShowAddForm(!showAddForm)}
+            onClick={() => {
+              if (showAddForm && editingBusId) {
+                setEditingBusId(null);
+                setNewBus({ 
+                  busNumber: '', 
+                  busName: '', 
+                  city: '', 
+                  stops: [{ stopName: '', arrivalTime: '', departureTime: '', latitude: null, longitude: null }] 
+                });
+              }
+              setShowAddForm(!showAddForm);
+            }}
           >
             {showAddForm ? 'Cancel' : 'Add New Bus'}
           </button>
         </div>
       </Card>
-
+      
       {showAddForm && (
-        <Card title="Add New Bus">
+        <Card title={editingBusId ? 'Edit Bus' : 'Add New Bus'}>
           <form onSubmit={handleAddBus}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
               <div className="form-group">
@@ -124,7 +172,6 @@ const AdminDashboard = () => {
                 />
               </div>
             </div>
-            
             <h4 style={{ margin: '1.5rem 0 1rem' }}>Stops:</h4>
             {newBus.stops.map((stop, index) => (
               <div key={index} className="form-group" style={{ 
@@ -146,7 +193,6 @@ const AdminDashboard = () => {
                     </button>
                   )}
                 </div>
-                
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
                   <div className="form-group">
                     <label>Stop Name</label>
@@ -188,15 +234,14 @@ const AdminDashboard = () => {
             </button>
             
             <button type="submit" className="btn" style={{ width: '100%' }}>
-              Save Bus
+              {editingBusId ? 'Update Bus' : 'Save Bus'}
             </button>
           </form>
         </Card>
       )}
-
+      
       {loading && <div className="loading">Loading buses...</div>}
       {error && <div className="alert alert-danger">{error}</div>}
-      
       {!loading && buses.length === 0 && !showAddForm && (
         <Card>
           <p style={{ textAlign: 'center', padding: '2rem' }}>
@@ -204,7 +249,6 @@ const AdminDashboard = () => {
           </p>
         </Card>
       )}
-
       {!loading && buses.length > 0 && (
         <Card title={`Your Buses (${buses.length})`}>
           <div className="bus-list">
@@ -217,14 +261,21 @@ const AdminDashboard = () => {
                       {bus.city}
                     </p>
                   </div>
-                  <button 
-                    onClick={() => handleDeleteBus(bus.id)} 
-                    className="btn btn-danger"
-                  >
-                    Delete
-                  </button>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button 
+                      onClick={() => handleEditBus(bus)} 
+                      className="btn"
+                    >
+                      Edit
+                    </button>
+                    <button 
+                      onClick={() => handleDeleteBus(bus.id)} 
+                      className="btn btn-danger"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
-                
                 <h5 style={{ margin: '1rem 0 0.5rem' }}>Stops:</h5>
                 <ul style={{ paddingLeft: '1.5rem' }}>
                   {bus.stops.map((stop, index) => (

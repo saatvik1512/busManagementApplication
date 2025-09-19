@@ -28,20 +28,22 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = async (username, password) => {
+  const login = async (username, password, userType = 'admin') => {
     try {
-      // Attempt login via API
-      const response = await api.loginAdmin(username, password); // Use unified login endpoint
+      let response;
+      if (userType === 'passenger') {
+        response = await api.loginPassenger(username, password);
+      } else {
+        response = await api.loginAdmin(username, password);
+      }
+      
       const token = response.data.token;
 
       if (token) {
-        // Decode token to get user info (simplified - real apps might verify signature)
-        // This assumes the username is in the 'sub' claim
         const payload = JSON.parse(atob(token.split('.')[1]));
         const userRole = payload.authorities && payload.authorities.length > 0 ? payload.authorities[0] : 'ROLE_UNKNOWN';
         const userData = { username: payload.sub, role: userRole };
 
-        // Store token and user data
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(userData));
 
@@ -52,7 +54,6 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Login error:', error);
-      // Clear any stale data
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       setUser(null);

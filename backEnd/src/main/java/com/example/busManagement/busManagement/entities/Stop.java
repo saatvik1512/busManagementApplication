@@ -11,4 +11,6 @@ public class Stop {
     private String stopName;
     private String arrivalTime;
     private String departureTime;
+    //private Double latitude;
+    //private Double longitude;
 }

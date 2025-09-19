@@ -2,21 +2,25 @@ package com.example.busManagement.busManagement.controllers;
 
 import com.example.busManagement.busManagement.entities.Bus;
 import com.example.busManagement.busManagement.models.BusDTO;
+import com.example.busManagement.busManagement.respository.BusRepository;
 import com.example.busManagement.busManagement.services.BusService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/buses")
 public class BusController {
 
     private final BusService busService;
+    private final BusRepository busRepository;
 
-    public BusController(BusService busService) {
+    public BusController(BusService busService, BusRepository busRepository) {
         this.busService = busService;
+        this.busRepository = busRepository;
     }
 
 
@@ -62,6 +66,12 @@ public class BusController {
         List<BusDTO> busesInCity = busService.getAllBusesInCity(city);
         // Return the list of BusDTOs with 200 OK status
         return ResponseEntity.ok(busesInCity);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Bus> getBusById(@PathVariable String id) {
+        Optional<Bus> bus = busRepository.findById(id);
+        return bus.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     // Already updated in previous instructions

@@ -87,7 +87,7 @@ public class SuperAdminController {
         // Create admin with encoded password
         Admin newAdmin = new Admin(
                 adminDetails.getUsername(),
-                passwordEncoder.encode(adminDetails.getPassword()), // Encode here
+                passwordEncoder.encode(adminDetails.getPassword()),
                 adminDetails.getCompanyName(),
                 adminDetails.getLicenseNumber(),
                 superAdmin.getCity(),

@@ -4,6 +4,7 @@ import com.example.busManagement.busManagement.services.CustomUserDetailsService
 import com.example.busManagement.busManagement.util.JwtTokenUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -54,12 +55,17 @@ public class SecurityConfig {
                         // Bus search is open to everyone (including non-logged-in users)
                         .requestMatchers("/api/buses/search").permitAll()
                         .requestMatchers("/api/buses/by-city").permitAll()
-                        // Bus management requires Admin or SuperAdmin
+
+                                .requestMatchers(HttpMethod.GET, "/api/buses/*").permitAll() // Bus management requires Admin or SuperAdmin
                         .requestMatchers("/api/buses/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         // Admin profile update requires Admin
 //                        .requestMatchers("/api/admin/profile").hasRole("ADMIN")
                         // Admin CRUD (might be restricted by ownership or SuperAdmin oversight)
                         .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN") // Adjust specifics if needed
+                                .requestMatchers("/api/passenger/signup").permitAll()
+                                .requestMatchers("/api/passenger/login").permitAll()
+                                .requestMatchers("/api/bookings/**").hasRole("PASSENGER")
+
                         // Default: Any other request requires authentication (and any role)
                         .anyRequest().authenticated()
                 )

@@ -1,4 +1,3 @@
-// src/services/api.js
 import axios from 'axios';
 
 // Configure base URL for your backend
@@ -25,9 +24,23 @@ api.interceptors.request.use(
 
 // --- Public API Calls ---
 
-// Search buses by start, end, and city
 export const searchBuses = (start, end, city) => {
-  return api.get(`/buses/search?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}&city=${encodeURIComponent(city)}`);
+  let params = new URLSearchParams();
+  if (start) params.append('start', start);
+  if (end) params.append('end', end);
+  if (city) params.append('city', city);
+  
+  return api.get(`/buses/search?${params.toString()}`);
+};
+
+
+export const getBusById = (busId) => {
+  return api.get(`/buses/${busId}`);
+};
+
+//updated
+export const createBooking = (bookingData) => {
+  return api.post('/bookings', bookingData);
 };
 
 // Get all buses by city
@@ -41,10 +54,9 @@ export const loginAdmin = (username, password) => {
 };
 
 // --- Admin API Calls ---
-
 // Get buses for the logged-in admin
 export const getAdminBuses = () => {
-  return api.get('/buses'); // Assuming this returns buses for the authenticated admin
+  return api.get('/buses');
 };
 
 // Add a new bus (for admin)
@@ -88,6 +100,28 @@ export const deleteAdmin = (adminId) => {
 export const getSuperAdminViewBuses = () => {
     return api.get('/superadmin/buses');
 };
+
+export const signupSuperAdmin = (superAdminData) => {
+  return api.post('/superadmin/signup', superAdminData);
+};
+
+export const signupPassenger = (passengerData) => {
+  return api.post('/passenger/signup', passengerData);
+};
+
+export const loginPassenger = (username, password) => {
+  return api.post('/passenger/login', { username, password });
+};
+
+export const getMyBookings = () => {
+  return api.get('/bookings/my-bookings');
+};
+
+export const cancelBooking = (bookingId) => {
+  return api.delete(`/bookings/${bookingId}`);
+};
+
+
 
 // Export the axios instance if needed elsewhere
 export default api;

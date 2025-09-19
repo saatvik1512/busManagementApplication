@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../services/auth';
 import Card from './Card';
 
-const LoginForm = () => {
+const PassengerLogin = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -16,16 +16,9 @@ const LoginForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    const result = await login(username, password);
+    const result = await login(username, password, 'passenger');
     if (result.success) {
-      const userData = JSON.parse(localStorage.getItem('user'));
-      if (userData.role === 'ROLE_ADMIN') {
-        navigate('/admin/dashboard');
-      } else if (userData.role === 'ROLE_SUPER_ADMIN') {
-        navigate('/superadmin/dashboard');
-      } else {
-        navigate(from, { replace: true });
-      }
+      navigate(from, { replace: true });
     } else {
       setError(result.message || 'Invalid username or password');
     }
@@ -33,7 +26,7 @@ const LoginForm = () => {
 
   return (
     <div className="form-container">
-      <Card title="Login">
+      <Card title="Passenger Login">
         {error && <div className="alert alert-danger">{error}</div>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
@@ -62,9 +55,12 @@ const LoginForm = () => {
             Login
           </button>
         </form>
+        <p style={{ textAlign: 'center', marginTop: '1rem' }}>
+          Don't have an account? <a href="/passenger-signup">Sign up here</a>
+        </p>
       </Card>
     </div>
   );
 };
 
-export default LoginForm;
+export default PassengerLogin;

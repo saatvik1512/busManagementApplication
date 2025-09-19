@@ -11,6 +11,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
+// ... existing code ...
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,11 +23,22 @@ public class Bus {
     private String busNumber;
     private String busName;
     private String city;
-//    private String adminId;
+    private int totalSeats;
+    private List<Seat> seats;
 
     @DBRef
     private Admin admin;
 
     @JsonIgnoreProperties({"buses", "password"})
     private List<Stop> stops;
+
+    // Make Seat class public and static
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Seat {
+        private int seatNumber;
+        private boolean isAvailable;
+        private String passengerId; // Will be null if available
+    }
 }

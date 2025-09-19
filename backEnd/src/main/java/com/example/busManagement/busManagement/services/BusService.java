@@ -1,10 +1,7 @@
 package com.example.busManagement.busManagement.services;
 
 
-import com.example.busManagement.busManagement.entities.Admin;
-import com.example.busManagement.busManagement.entities.Bus;
-import com.example.busManagement.busManagement.entities.Stop;
-import com.example.busManagement.busManagement.entities.SuperAdmin;
+import com.example.busManagement.busManagement.entities.*;
 import com.example.busManagement.busManagement.models.BusDTO;
 import com.example.busManagement.busManagement.respository.AdminRepository;
 import com.example.busManagement.busManagement.respository.BusRepository;
@@ -17,179 +14,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority; // Ad
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-//@Service
-//public class BusService {
-//    private final BusRepository busRepository;
-//    private AdminRepository adminRepository;
-//    private SuperAdminRepository superAdminRepository;
-//
-//    public BusService(BusRepository busRepository, AdminRepository adminRepository) {
-//        this.busRepository = busRepository;
-//        this.adminRepository = adminRepository;
-//    }
-//
-//    public Bus addBus(Bus bus, String adminUsername) {
-//        Admin admin = adminRepository.findByUsername(adminUsername)
-//                .orElseThrow(() -> new RuntimeException("Admin not found"));
-//
-//        bus.setAdmin(admin);
-//        Bus savedBus = busRepository.save(bus);
-//
-//        // Add bus to admin's list
-//        admin.addBus(savedBus);
-//        adminRepository.save(admin);
-//
-//        return savedBus;
-//    }
-//
-//    public List<BusDTO> searchBuses(String start, String end, String city) {
-//        List<Bus> cityBuses = busRepository.findByCity(city);
-//
-//        return cityBuses.stream()
-//                .filter(bus -> hasValidRoute(bus, start, end))
-//                .map(bus -> new BusDTO(
-//                        bus.getId(),
-//                        bus.getBusNumber(),
-//                        bus.getBusName(),
-//                        bus.getCity(),
-//                        bus.getAdmin().getCompanyName(), // Get company name
-//                        bus.getStops()
-//                ))
-//                .collect(Collectors.toList());
-//    }
-//
-//    private boolean hasValidRoute(Bus bus, String start, String end) {
-//        List<Stop> stops = bus.getStops();
-//        int startIndex = -1;
-//        int endIndex = -1;
-//
-//        for (int i = 0; i < stops.size(); i++) {
-//            if (stops.get(i).getStopName().equalsIgnoreCase(start)) {
-//                startIndex = i;
-//            }
-//            if (stops.get(i).getStopName().equalsIgnoreCase(end) && startIndex != -1) {
-//                endIndex = i;
-//                break;
-//            }
-//        }
-//
-//        return startIndex != -1 && endIndex != -1 && startIndex < endIndex;
-//    }
-//
-//    public Bus updateBus(String busId, Bus updatedBus, String username) {
-//        Bus existingBus = busRepository.findById(busId)
-//                .orElseThrow(() -> new RuntimeException("Bus not found"));
-//
-//        // Verify admin owns the bus
-//        if (!existingBus.getAdmin().getUsername().equals(username)) {
-//            throw new RuntimeException("Unauthorized: You don't own this bus");
-//        }
-//
-//        validateBusUpdate(updatedBus);
-//
-//        // Update fields if provided
-//        if (updatedBus.getBusNumber() != null) {
-//            existingBus.setBusNumber(updatedBus.getBusNumber());
-//        }
-//        if (updatedBus.getBusName() != null) {
-//            existingBus.setBusName(updatedBus.getBusName());
-//        }
-//        if (updatedBus.getCity() != null) {
-//            existingBus.setCity(updatedBus.getCity());
-//        }
-//        if (updatedBus.getStops() != null) {
-//            existingBus.setStops(updatedBus.getStops());
-//        }
-//
-//        return busRepository.save(existingBus);
-//    }
-//
-//    private void validateBusUpdate(Bus updatedBus) {
-//        if (updatedBus.getStops() != null) {
-//            Set<String> stopNames = new HashSet<>();
-//            for (Stop stop : updatedBus.getStops()) {
-//                if (stopNames.contains(stop.getStopName())) {
-//                    throw new RuntimeException("Duplicate stop name: " + stop.getStopName());
-//                }
-//                stopNames.add(stop.getStopName());
-//            }
-//        }
-//    }
-//
-////    public String deleteBusById(String busId, String username) {
-////        Optional<Admin> adminOptional = adminRepository.findByUsername(username);
-////        if (adminOptional.isEmpty()) {
-////            throw new UsernameNotFoundException("Admin not found");
-////        }
-////
-////        Admin admin = adminOptional.get();
-////
-////        Optional<Bus> busOptional = busRepository.findById(busId);
-////        if (busOptional.isEmpty()) {
-////            throw new NoSuchElementException("Bus with ID " + busId + " not found");
-////        }
-////
-////        Bus bus = busOptional.get();
-////
-////        // Optional: You can check if this bus belongs to the same city as the admin
-////        if (!bus.getCity().equalsIgnoreCase(admin.getCity())) {
-////            throw new SecurityException("You are not authorized to delete this bus");
-////        }
-////
-////        busRepository.deleteById(busId);
-////        return "Bus with ID " + busId + " has been deleted successfully";
-////    }
-//
-//    public String deleteBusById(String busId, Authentication authentication) {
-//        String username = authentication.getName();
-//        // Get role from Authentication (set by JwtRequestFilter using CustomUserDetailsService)
-//        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-//        String userRole = authorities.stream()
-//                .findFirst()
-//                .map(GrantedAuthority::getAuthority)
-//                .orElse("ROLE_UNKNOWN"); // Default if no role found
-//
-//        Optional<Admin> adminOptional = adminRepository.findByUsername(username);
-//        Optional<SuperAdmin> superAdminOptional = superAdminRepository.findByUsername(username); // Add SuperAdmin repo dependency
-//
-//        Optional<Bus> busOptional = busRepository.findById(busId);
-//        if (busOptional.isEmpty()) {
-//            throw new NoSuchElementException("Bus with ID " + busId + " not found");
-//        }
-//        Bus bus = busOptional.get();
-//
-//        if ("ROLE_SUPER_ADMIN".equals(userRole)) {
-//            SuperAdmin superAdmin = superAdminOptional.orElseThrow(() -> new UsernameNotFoundException("SuperAdmin not found"));
-//            // Allow SuperAdmin to delete any bus in their city
-//            if (!bus.getCity().equalsIgnoreCase(superAdmin.getCity())) {
-//                throw new SecurityException("SuperAdmin can only manage buses in their city.");
-//            }
-//            // Proceed to delete
-//            busRepository.deleteById(busId);
-//            return "Bus with ID " + busId + " has been deleted successfully by SuperAdmin.";
-//
-//        } else if ("ROLE_ADMIN".equals(userRole)) {
-//            Admin admin = adminOptional.orElseThrow(() -> new UsernameNotFoundException("Admin not found"));
-//            // Existing Admin logic
-//            if (!bus.getCity().equalsIgnoreCase(admin.getCity())) {
-//                throw new SecurityException("You are not authorized to delete this bus (city mismatch).");
-//            }
-//            // Optional: Check if this bus belongs to this specific admin (ownership)
-//            if (!bus.getAdmin().getId().equals(admin.getId())) {
-//                throw new SecurityException("You are not authorized to delete this bus (not owner).");
-//            }
-//            // Proceed to delete
-//            busRepository.deleteById(busId);
-//            // Optional: Remove bus reference from admin's list if needed
-//            return "Bus with ID " + busId + " has been deleted successfully by Admin.";
-//        } else {
-//            throw new SecurityException("Unauthorized access.");
-//        }
-//    }
-//
-//}
-
 
 @Service
 public class BusService {
@@ -250,6 +74,24 @@ public class BusService {
         }
     }
 
+
+
+    // Add this method to the BusService class
+    private void initializeSeats(Bus bus) {
+        int totalSeats = bus.getTotalSeats();
+        List<Bus.Seat> seats = new ArrayList<>();
+
+        for (int i = 1; i <= totalSeats; i++) {
+            Bus.Seat seat = new Bus.Seat();
+            seat.setSeatNumber(i);
+            seat.setAvailable(true);
+            seat.setPassengerId(null);
+            seats.add(seat);
+        }
+
+        bus.setSeats(seats);
+    }
+
     // Updated method signature to accept Authentication
     public Bus addBus(Bus bus, Authentication authentication) {
         String username = authentication.getName();
@@ -290,7 +132,7 @@ public class BusService {
             throw new SecurityException("Unauthorized: User role not permitted to add buses.");
         }
 
-
+        initializeSeats(bus);
         Bus savedBus = busRepository.save(bus);
         if (admin != null) { // Add bus to admin's list only if admin is involved
             // Add bus to admin's list

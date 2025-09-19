@@ -1,10 +1,9 @@
-// frontEnd/src/components/Card.jsx
 import React from 'react';
 
-const Card = ({ title, children }) => {
+const Card = ({ title, children, className = '' }) => {
   return (
-    <div className="card">
-      {title && <h3 style={{ marginBottom: '1rem', paddingBottom: '0.5rem', borderBottom: '1px solid #eee' }}>{title}</h3>}
+    <div className={`card ${className}`}>
+      {title && <h3>{title}</h3>}
       {children}
     </div>
   );

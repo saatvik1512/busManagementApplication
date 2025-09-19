@@ -28,11 +28,4 @@ public abstract class User { // Changed to abstract
     private String city; // Applicable to both Admin and SuperAdmin
 
     private String role;
-
-    // Common fields can go here if applicable later
-    // For now, specific fields stay in Admin/SuperAdmin
-
-    // If keeping common collection, you might need a discriminator or type field
-    // Or use @Document(collection = "...") on subclasses and remove from here
-    // Let's remove @Document from here and put it on subclasses for clarity
 }

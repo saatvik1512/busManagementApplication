@@ -28,6 +28,13 @@ jobs:
         with:
           node-version: '18'
 
+      # ADD THIS STEP - Fix permission for Maven wrapper
+      - name: Set execute permission for Maven wrapper
+        run: |
+          cd backEnd
+          chmod +x mvnw
+          cd ..
+
       # 4. Build backend (Spring Boot)
       - name: Build backEnd
         run: |

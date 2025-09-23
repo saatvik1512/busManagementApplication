@@ -1,0 +1,62 @@
+name: CI/CD Pipeline
+
+# When to run this pipeline
+on:
+  push:
+    branches: [ main ]  # Runs when you push to main branch
+  pull_request:
+    branches: [ main ]  # Runs when someone creates a PR to main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Checkout your code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Set up Java for backend
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # 3. Set up Node.js for frontend
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      # 4. Build backend (Spring Boot)
+      - name: Build backend
+        run: |
+          cd backend
+          ./mvnw clean package -DskipTests
+        env:
+          SPRING_PROFILES_ACTIVE: test
+
+      # 5. Build frontend (React)
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm install
+          npm run build
+
+      # 6. Run backend tests
+      - name: Run backend tests
+        run: |
+          cd backend
+          ./mvnw test
+
+      # 7. Run frontend tests (if you have any)
+      - name: Run frontend tests
+        run: |
+          cd frontend
+          npm test -- --passWithNoTests
+
+      # 8. Build Docker images
+      - name: Build Docker images
+        run: |
+          docker build -t bus-backend:latest ./backend
+          docker build -t bus-frontend:latest ./frontend

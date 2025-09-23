@@ -29,34 +29,34 @@ jobs:
           node-version: '18'
 
       # 4. Build backend (Spring Boot)
-      - name: Build backend
+      - name: Build backEnd
         run: |
-          cd backend
+          cd backEnd
           ./mvnw clean package -DskipTests
         env:
           SPRING_PROFILES_ACTIVE: test
 
       # 5. Build frontend (React)
-      - name: Build frontend
+      - name: Build frontEnd
         run: |
-          cd frontend
+          cd frontEnd
           npm install
           npm run build
 
       # 6. Run backend tests
       - name: Run backend tests
         run: |
-          cd backend
+          cd backEnd
           ./mvnw test
 
       # 7. Run frontend tests (if you have any)
       - name: Run frontend tests
         run: |
-          cd frontend
+          cd frontEnd
           npm test -- --passWithNoTests
 
       # 8. Build Docker images
       - name: Build Docker images
         run: |
-          docker build -t bus-backend:latest ./backend
-          docker build -t bus-frontend:latest ./frontend
+          docker build -t bus-backEnd:latest ./backend
+          docker build -t bus-frontEnd:latest ./frontend

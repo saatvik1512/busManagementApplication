@@ -65,5 +65,5 @@ jobs:
       # 8. Build Docker images
       - name: Build Docker images
         run: |
-          docker build -t bus-backend:latest ./backend
-          docker build -t bus-frontend:latest ./frontend
+          docker build -t bus-backend:latest ./backEnd
+          docker build -t bus-frontend:latest ./frontEnd

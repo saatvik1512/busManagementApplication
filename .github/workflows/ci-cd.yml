@@ -1,6 +1,4 @@
 name: CI/CD Pipeline
-
-# When to run this pipeline
 on:
   push:
     branches: [ main ]  # Runs when you push to main branch
